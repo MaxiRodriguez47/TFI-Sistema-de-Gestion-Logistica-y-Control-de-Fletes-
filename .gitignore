@@ -1,0 +1,25 @@
+# Base de datos SQLite (se regenera con logistica_agro.sql)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Entorno y editores
+.env
+.env.*
+.idea/
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db

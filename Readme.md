@@ -48,7 +48,7 @@ Para garantizar que la solución sea robusta, escalable y cumpla con estándares
 
 - **Lenguaje:** Python (3.10+)
 - **Framework Web:** FastAPI (Alta velocidad, asíncrono y tipado estático).
-- **Base de Datos:** MySQL (Modelo Relacional rigurosamente diseñado en Tercera Forma Normal - 3FN).
+- **Base de Datos:** SQLite 3 (Modelo Relacional rigurosamente diseñado en Tercera Forma Normal - 3FN).
 - **ORM:** SQLAlchemy 2.0 (Para la interacción segura con la base de datos).
 - **Validación de Datos:** Pydantic v2 (Para la limpieza de datos de entrada y el cálculo de propiedades dinámicas como el monto del flete).
 - **Documentación:** Swagger UI / ReDoc (Autogenerada por FastAPI).
@@ -63,3 +63,37 @@ Este sistema está siendo desarrollado como proyecto integrador para la asignatu
 - **Equipo de Desarrollo:**
   - Rodríguez, Maximiliano
   - Ibarra, Santiago Luciano
+
+---
+
+## 🗄️ Base de Datos (SQLite)
+
+El esquema está en `logistica_agro.sql`, los datos de prueba en `seed.sql` (idempotente) y la base lista para usar en `logistica_agro.db` (no se versiona; está en `.gitignore`).
+
+Para regenerarla desde cero (requiere Python 3):
+
+```bash
+py -c "import sqlite3; c = sqlite3.connect('logistica_agro.db'); c.executescript(open('logistica_agro.sql', encoding='utf-8').read()); c.executescript(open('seed.sql', encoding='utf-8').read()); c.commit()"
+```
+
+El script incluye estas restricciones de integridad:
+
+- FK compuesta `(ID_Finca, Producto_CUIT)` → `FINCA_PRODUCTO`, para que el productor del viaje esté asociado a la finca de origen.
+- `Num_Vale` único (no se repite el vale de báscula).
+- `CHECK` de `Peso_Bruto_Kg >= Tara_Kg`, `Tara_Kg >= 0` y `Tarifa_Ton >= 0`.
+
+> ⚠️ SQLite no valida las claves foráneas por defecto. En cada conexión hay que ejecutar:
+>
+> ```sql
+> PRAGMA foreign_keys = ON;
+> ```
+>
+> Con SQLAlchemy se activa con un evento `connect`:
+>
+> ```python
+> from sqlalchemy import event
+>
+> @event.listens_for(engine, "connect")
+> def activar_fk(dbapi_connection, connection_record):
+>     dbapi_connection.execute("PRAGMA foreign_keys = ON")
+> ```
