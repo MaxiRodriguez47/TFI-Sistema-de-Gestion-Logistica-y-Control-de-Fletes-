@@ -17,6 +17,7 @@ env/
 # Entorno y editores
 .env
 .env.*
+!frontend/.env.example
 .idea/
 .vscode/
 
