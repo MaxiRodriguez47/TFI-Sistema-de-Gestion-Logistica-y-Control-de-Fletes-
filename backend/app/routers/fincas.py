@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from ..auth import AdminActual, UsuarioActual
 from ..database import get_db
-from ..models import Finca, Producto
+from ..models import Finca, Localidad, Producto
 from ..schemas import FincaCreate, FincaRead, FincaUpdate
 from ..utils import guardar, obtener_o_404
 
@@ -30,6 +30,7 @@ def obtener_finca(id_finca: int, _usuario: UsuarioActual, db: Session = Depends(
 
 @router.post("", response_model=FincaRead, status_code=status.HTTP_201_CREATED, summary="Crear finca")
 def crear_finca(payload: FincaCreate, _admin: AdminActual, db: Session = Depends(get_db)):
+    obtener_o_404(db, Localidad, payload.id_localidad, "Localidad")
     finca = Finca(**payload.model_dump())
     db.add(finca)
     guardar(db)
@@ -40,6 +41,7 @@ def crear_finca(payload: FincaCreate, _admin: AdminActual, db: Session = Depends
 @router.put("/{id_finca}", response_model=FincaRead, summary="Actualizar finca")
 def actualizar_finca(id_finca: int, payload: FincaUpdate, _admin: AdminActual, db: Session = Depends(get_db)):
     finca = obtener_o_404(db, Finca, id_finca, "Finca")
+    obtener_o_404(db, Localidad, payload.id_localidad, "Localidad")
     for campo, valor in payload.model_dump().items():
         setattr(finca, campo, valor)
     guardar(db)

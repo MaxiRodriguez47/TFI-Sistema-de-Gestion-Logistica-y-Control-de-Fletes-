@@ -7,11 +7,17 @@
 
 PRAGMA foreign_keys = ON;
 
+-- Localidades y departamentos
+INSERT OR IGNORE INTO LOCALIDADES (ID_Localidad, Localidad_Nombre, Departamento) VALUES
+    (1, 'Concepción', 'Chicligasta'),
+    (2, 'Monteros',    'Monteros'),
+    (3, 'Simoca',      'Simoca');
+
 -- Fincas
-INSERT OR IGNORE INTO FINCAS (ID_Finca, Finca_Nombre, Localidad, Departamento) VALUES
-    (1, 'La Esperanza', 'Concepción', 'Chicligasta'),
-    (2, 'El Porvenir',  'Monteros',    'Monteros'),
-    (3, 'San José',     'Simoca',      'Simoca');
+INSERT OR IGNORE INTO FINCAS (ID_Finca, Finca_Nombre, ID_Localidad) VALUES
+    (1, 'La Esperanza', 1),
+    (2, 'El Porvenir',  2),
+    (3, 'San José',     3);
 
 -- Productores
 INSERT OR IGNORE INTO PRODUCTOS (Producto_CUIT, Producto_Nombre) VALUES

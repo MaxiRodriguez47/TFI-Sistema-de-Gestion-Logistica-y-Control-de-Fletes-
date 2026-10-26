@@ -144,16 +144,75 @@ def test_admin_cambia_password_y_desactiva_usuario(client, admin, chofer):
 # ---------------------------------------------------------------------------
 
 
+def test_crud_localidad(client, admin):
+    crear = client.post(
+        f"{API}/localidades",
+        headers=admin,
+        json={"localidad_nombre": "Aguilares", "departamento": "Aguilares"},
+    )
+    assert crear.status_code == 201
+    localidad = crear.json()
+    assert localidad["id_localidad"] > 0
+
+    listado = client.get(f"{API}/localidades", headers=admin)
+    assert listado.status_code == 200
+    assert [loc["localidad_nombre"] for loc in listado.json()] == ["Aguilares"]
+
+    # No se puede repetir la misma localidad en el mismo departamento
+    duplicada = client.post(
+        f"{API}/localidades",
+        headers=admin,
+        json={"localidad_nombre": "Aguilares", "departamento": "Aguilares"},
+    )
+    assert duplicada.status_code == 409
+
+    actualizar = client.put(
+        f"{API}/localidades/{localidad['id_localidad']}",
+        headers=admin,
+        json={"localidad_nombre": "Aguilares", "departamento": "Río Chico"},
+    )
+    assert actualizar.status_code == 200
+    assert actualizar.json()["departamento"] == "Río Chico"
+
+    finca = client.post(
+        f"{API}/fincas",
+        headers=admin,
+        json={"finca_nombre": "La Florida", "id_localidad": localidad["id_localidad"]},
+    ).json()
+
+    # Una localidad con fincas no se puede eliminar
+    assert client.delete(f"{API}/localidades/{localidad['id_localidad']}", headers=admin).status_code == 409
+
+    assert client.delete(f"{API}/fincas/{finca['id_finca']}", headers=admin).status_code == 204
+    assert client.delete(f"{API}/localidades/{localidad['id_localidad']}", headers=admin).status_code == 204
+
+
+def test_finca_rechaza_localidad_inexistente(client, admin):
+    respuesta = client.post(
+        f"{API}/fincas",
+        headers=admin,
+        json={"finca_nombre": "Sin localidad", "id_localidad": 9999},
+    )
+    assert respuesta.status_code == 404
+
+
 def test_crud_finca(client, admin):
+    localidad = client.post(
+        f"{API}/localidades",
+        headers=admin,
+        json={"localidad_nombre": "Monteros", "departamento": "Monteros"},
+    ).json()
     crear = client.post(
         f"{API}/fincas",
         headers=admin,
-        json={"finca_nombre": "El Porvenir", "localidad": "Monteros", "departamento": "Monteros"},
+        json={"finca_nombre": "El Porvenir", "id_localidad": localidad["id_localidad"]},
     )
     assert crear.status_code == 201
     finca = crear.json()
     assert finca["id_finca"] > 0
     assert finca["productores"] == []
+    assert finca["localidad"]["localidad_nombre"] == "Monteros"
+    assert finca["localidad"]["departamento"] == "Monteros"
 
     listado = client.get(f"{API}/fincas", headers=admin)
     assert listado.status_code == 200
@@ -162,7 +221,7 @@ def test_crud_finca(client, admin):
     actualizar = client.put(
         f"{API}/fincas/{finca['id_finca']}",
         headers=admin,
-        json={"finca_nombre": "El Porvenir II", "localidad": "Monteros", "departamento": "Monteros"},
+        json={"finca_nombre": "El Porvenir II", "id_localidad": localidad["id_localidad"]},
     )
     assert actualizar.status_code == 200
     assert actualizar.json()["finca_nombre"] == "El Porvenir II"
@@ -173,6 +232,7 @@ def test_crud_finca(client, admin):
 
 
 def test_chofer_solo_lee_catalogos(client, admin, chofer, datos):
+    assert client.get(f"{API}/localidades", headers=chofer).status_code == 200
     assert client.get(f"{API}/fincas", headers=chofer).status_code == 200
     assert client.get(f"{API}/camiones", headers=chofer).status_code == 200
     assert client.get(f"{API}/choferes", headers=chofer).status_code == 200
@@ -182,10 +242,17 @@ def test_chofer_solo_lee_catalogos(client, admin, chofer, datos):
     crear = client.post(f"{API}/camiones", headers=chofer, json={"camion_patente": "ZZ999ZZ"})
     assert crear.status_code == 403
 
+    crear_localidad = client.post(
+        f"{API}/localidades",
+        headers=chofer,
+        json={"localidad_nombre": "Lules", "departamento": "Lules"},
+    )
+    assert crear_localidad.status_code == 403
+
     editar = client.put(
         f"{API}/fincas/{datos['finca']['id_finca']}",
         headers=chofer,
-        json={"finca_nombre": "Cambio", "localidad": "X", "departamento": "Y"},
+        json={"finca_nombre": "Cambio", "id_localidad": datos["localidad"]["id_localidad"]},
     )
     assert editar.status_code == 403
 
@@ -194,10 +261,15 @@ def test_chofer_solo_lee_catalogos(client, admin, chofer, datos):
 
 
 def test_asociacion_productor_finca(client, admin):
+    localidad = client.post(
+        f"{API}/localidades",
+        headers=admin,
+        json={"localidad_nombre": "Simoca", "departamento": "Simoca"},
+    ).json()
     finca = client.post(
         f"{API}/fincas",
         headers=admin,
-        json={"finca_nombre": "San José", "localidad": "Simoca", "departamento": "Simoca"},
+        json={"finca_nombre": "San José", "id_localidad": localidad["id_localidad"]},
     ).json()
     producto = client.post(
         f"{API}/productos",

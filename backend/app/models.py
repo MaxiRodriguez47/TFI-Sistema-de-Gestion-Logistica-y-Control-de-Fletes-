@@ -12,6 +12,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Table,
+    UniqueConstraint,
     text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -32,14 +33,27 @@ finca_producto = Table(
 )
 
 
+class Localidad(Base):
+    """Localidad con su departamento. Evita repetir el departamento en cada finca."""
+
+    __tablename__ = "LOCALIDADES"
+    __table_args__ = (UniqueConstraint("Localidad_Nombre", "Departamento", name="uq_localidades_nombre_departamento"),)
+
+    id_localidad: Mapped[int] = mapped_column("ID_Localidad", Integer, primary_key=True, autoincrement=True)
+    localidad_nombre: Mapped[str] = mapped_column("Localidad_Nombre", String(100))
+    departamento: Mapped[str] = mapped_column("Departamento", String(100))
+
+    fincas: Mapped[list["Finca"]] = relationship(back_populates="localidad")
+
+
 class Finca(Base):
     __tablename__ = "FINCAS"
 
     id_finca: Mapped[int] = mapped_column("ID_Finca", Integer, primary_key=True, autoincrement=True)
     finca_nombre: Mapped[str] = mapped_column("Finca_Nombre", String(100))
-    localidad: Mapped[str] = mapped_column("Localidad", String(100))
-    departamento: Mapped[str] = mapped_column("Departamento", String(100))
+    id_localidad: Mapped[int] = mapped_column("ID_Localidad", Integer, ForeignKey("LOCALIDADES.ID_Localidad"))
 
+    localidad: Mapped["Localidad"] = relationship(back_populates="fincas", lazy="selectin")
     productores: Mapped[list["Producto"]] = relationship(
         secondary=finca_producto,
         back_populates="fincas",

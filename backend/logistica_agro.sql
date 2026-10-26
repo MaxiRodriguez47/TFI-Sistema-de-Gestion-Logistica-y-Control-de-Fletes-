@@ -11,21 +11,29 @@
 
 PRAGMA foreign_keys = ON;
 
--- 1. Tabla FINCAS
+-- 1. Tabla LOCALIDADES (cada localidad pertenece a un departamento)
+CREATE TABLE IF NOT EXISTS LOCALIDADES (
+    ID_Localidad INTEGER PRIMARY KEY AUTOINCREMENT,
+    Localidad_Nombre VARCHAR(100) NOT NULL,
+    Departamento VARCHAR(100) NOT NULL,
+    UNIQUE (Localidad_Nombre, Departamento)
+);
+
+-- 2. Tabla FINCAS
 CREATE TABLE IF NOT EXISTS FINCAS (
     ID_Finca INTEGER PRIMARY KEY AUTOINCREMENT,
     Finca_Nombre VARCHAR(100) NOT NULL,
-    Localidad VARCHAR(100) NOT NULL,
-    Departamento VARCHAR(100) NOT NULL
+    ID_Localidad INTEGER NOT NULL,
+    FOREIGN KEY (ID_Localidad) REFERENCES LOCALIDADES(ID_Localidad)
 );
 
--- 2. Tabla PRODUCTOS (productores)
+-- 3. Tabla PRODUCTOS (productores)
 CREATE TABLE IF NOT EXISTS PRODUCTOS (
     Producto_CUIT VARCHAR(20) PRIMARY KEY NOT NULL,
     Producto_Nombre VARCHAR(100) NOT NULL
 );
 
--- 3. Tabla asociativa FINCA_PRODUCTO (N:M)
+-- 4. Tabla asociativa FINCA_PRODUCTO (N:M)
 CREATE TABLE IF NOT EXISTS FINCA_PRODUCTO (
     ID_Finca INTEGER NOT NULL,
     Producto_CUIT VARCHAR(20) NOT NULL,
@@ -34,18 +42,18 @@ CREATE TABLE IF NOT EXISTS FINCA_PRODUCTO (
     FOREIGN KEY (Producto_CUIT) REFERENCES PRODUCTOS(Producto_CUIT) ON DELETE CASCADE
 );
 
--- 4. Tabla CAMIONES
+-- 5. Tabla CAMIONES
 CREATE TABLE IF NOT EXISTS CAMIONES (
     Camion_Patente VARCHAR(10) PRIMARY KEY NOT NULL
 );
 
--- 5. Tabla CHOFERES
+-- 6. Tabla CHOFERES
 CREATE TABLE IF NOT EXISTS CHOFERES (
     Chofer_DNI VARCHAR(20) PRIMARY KEY NOT NULL,
     Chofer_Nombre VARCHAR(100) NOT NULL
 );
 
--- 6. Tabla TELEFONOS_CHOFER (atributo multivaluado)
+-- 7. Tabla TELEFONOS_CHOFER (atributo multivaluado)
 CREATE TABLE IF NOT EXISTS TELEFONOS_CHOFER (
     Chofer_DNI VARCHAR(20) NOT NULL,
     Telefono VARCHAR(20) NOT NULL,
@@ -53,13 +61,13 @@ CREATE TABLE IF NOT EXISTS TELEFONOS_CHOFER (
     FOREIGN KEY (Chofer_DNI) REFERENCES CHOFERES(Chofer_DNI) ON DELETE CASCADE
 );
 
--- 7. Tabla INGENIOS
+-- 8. Tabla INGENIOS
 CREATE TABLE IF NOT EXISTS INGENIOS (
     ID_Ingenio INTEGER PRIMARY KEY AUTOINCREMENT,
     Ingenio_Nombre VARCHAR(100) NOT NULL UNIQUE
 );
 
--- 8. Tabla VIAJES (transaccional principal)
+-- 9. Tabla VIAJES (transaccional principal)
 CREATE TABLE IF NOT EXISTS VIAJES (
     ID_Viaje VARCHAR(20) PRIMARY KEY NOT NULL,
     ID_Finca INTEGER NOT NULL,
@@ -91,7 +99,7 @@ CREATE INDEX IF NOT EXISTS idx_viajes_chofer ON VIAJES(Chofer_DNI);
 CREATE INDEX IF NOT EXISTS idx_viajes_camion ON VIAJES(Camion_Patente);
 CREATE INDEX IF NOT EXISTS idx_viajes_producto ON VIAJES(Producto_CUIT);
 
--- 9. Tabla USUARIOS (autenticación y roles)
+-- 10. Tabla USUARIOS (autenticación y roles)
 CREATE TABLE IF NOT EXISTS USUARIOS (
     ID_Usuario INTEGER PRIMARY KEY AUTOINCREMENT,
     Usuario_Nombre VARCHAR(50) NOT NULL UNIQUE,

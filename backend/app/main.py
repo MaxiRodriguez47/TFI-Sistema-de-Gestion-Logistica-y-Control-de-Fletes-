@@ -7,7 +7,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import models  # noqa: F401  (registra los modelos en el metadata)
 from .database import Base, engine
-from .routers import auth, camiones, choferes, fincas, ingenios, productos, usuarios, viajes
+from .routers import (
+    auth,
+    camiones,
+    choferes,
+    fincas,
+    ingenios,
+    localidades,
+    productos,
+    usuarios,
+    viajes,
+)
 
 API_PREFIX = "/api/v1"
 
@@ -37,7 +47,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for modulo in (auth, fincas, productos, camiones, choferes, ingenios, viajes, usuarios):
+for modulo in (auth, localidades, fincas, productos, camiones, choferes, ingenios, viajes, usuarios):
     app.include_router(modulo.router, prefix=API_PREFIX)
 
 

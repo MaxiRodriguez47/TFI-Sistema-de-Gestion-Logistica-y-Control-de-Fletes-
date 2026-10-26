@@ -22,12 +22,30 @@ Decimal2 = Annotated[
 TelefonoStr = Annotated[str, Field(min_length=6, max_length=20, pattern=r"^[0-9+\-\s]+$")]
 
 
+class LocalidadBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    localidad_nombre: str = Field(min_length=1, max_length=100)
+    departamento: str = Field(min_length=1, max_length=100)
+
+
+class LocalidadCreate(LocalidadBase):
+    pass
+
+
+class LocalidadUpdate(LocalidadBase):
+    pass
+
+
+class LocalidadResumen(LocalidadBase):
+    id_localidad: int
+
+
 class FincaBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     finca_nombre: str = Field(min_length=1, max_length=100)
-    localidad: str = Field(min_length=1, max_length=100)
-    departamento: str = Field(min_length=1, max_length=100)
+    id_localidad: int = Field(gt=0)
 
 
 class FincaCreate(FincaBase):
@@ -47,7 +65,13 @@ class FincaResumen(BaseModel):
 
 class FincaRead(FincaBase):
     id_finca: int
+    localidad: LocalidadResumen
     productores: list["ProductoResumen"] = Field(default_factory=list)
+
+
+class LocalidadRead(LocalidadBase):
+    id_localidad: int
+    fincas: list[FincaResumen] = Field(default_factory=list)
 
 
 class ProductoBase(BaseModel):
