@@ -133,6 +133,7 @@ Los endpoints de catálogo devuelven `401` sin token y `403` si el rol no tiene 
 | Login | `POST /api/v1/auth/login` | público |
 | Usuario actual | `GET /api/v1/auth/me` | autenticado |
 | Usuarios | `GET/POST /api/v1/usuarios`, `PUT /api/v1/usuarios/{id}` | ADMIN |
+| Localidades | `GET/POST /api/v1/localidades`, `GET/PUT/DELETE /api/v1/localidades/{id}` | lectura: autenticado · escritura: ADMIN |
 | Fincas | `GET/POST /api/v1/fincas`, `GET/PUT/DELETE /api/v1/fincas/{id}` | lectura: autenticado · escritura: ADMIN |
 | Productores de una finca | `POST/DELETE /api/v1/fincas/{id}/productores/{cuit}` | ADMIN |
 | Productores | `GET/POST /api/v1/productos`, `GET/PUT/DELETE /api/v1/productos/{cuit}` | lectura: autenticado · escritura: ADMIN |
@@ -192,6 +193,9 @@ El script incluye estas restricciones de integridad:
 - `Num_Vale` único (no se repite el vale de báscula).
 - `CHECK` de `Peso_Bruto_Kg >= Tara_Kg`, `Tara_Kg >= 0` y `Tarifa_Ton >= 0`.
 - `USUARIOS`: nombre de usuario único, `Rol` restringido a `ADMIN`/`CHOFER`, un solo usuario por chofer (`Chofer_DNI` único) y coherencia rol–chofer (un ADMIN no tiene DNI y un CHOFER sí).
+- `LOCALIDADES`: `(Localidad_Nombre, Departamento)` único y `FINCAS.ID_Localidad` como FK. Así el departamento depende de la localidad y no se repite en cada finca (3FN estricta).
+
+Una finca se crea indicando `id_localidad`; la respuesta incluye el objeto `localidad` con su nombre y departamento.
 
 > ⚠️ SQLite no valida las claves foráneas por defecto. En cada conexión hay que ejecutar:
 >

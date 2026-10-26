@@ -68,10 +68,15 @@ def admin(client) -> dict[str, str]:
 @pytest.fixture
 def datos(client, admin):
     """Crea el conjunto mínimo de entidades relacionadas para operar con viajes."""
+    localidad = client.post(
+        f"{API}/localidades",
+        headers=admin,
+        json={"localidad_nombre": "Concepción", "departamento": "Chicligasta"},
+    ).json()
     finca = client.post(
         f"{API}/fincas",
         headers=admin,
-        json={"finca_nombre": "La Esperanza", "localidad": "Concepción", "departamento": "Chicligasta"},
+        json={"finca_nombre": "La Esperanza", "id_localidad": localidad["id_localidad"]},
     ).json()
     producto = client.post(
         f"{API}/productos",
@@ -94,6 +99,7 @@ def datos(client, admin):
     ).json()
     ingenio = client.post(f"{API}/ingenios", headers=admin, json={"ingenio_nombre": "Ingenio Concepción"}).json()
     return {
+        "localidad": localidad,
         "finca": finca,
         "producto": producto,
         "camion": camion,
