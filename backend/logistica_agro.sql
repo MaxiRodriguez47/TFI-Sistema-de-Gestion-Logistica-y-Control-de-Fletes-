@@ -90,3 +90,19 @@ CREATE INDEX IF NOT EXISTS idx_viajes_ingenio ON VIAJES(ID_Ingenio);
 CREATE INDEX IF NOT EXISTS idx_viajes_chofer ON VIAJES(Chofer_DNI);
 CREATE INDEX IF NOT EXISTS idx_viajes_camion ON VIAJES(Camion_Patente);
 CREATE INDEX IF NOT EXISTS idx_viajes_producto ON VIAJES(Producto_CUIT);
+
+-- 9. Tabla USUARIOS (autenticación y roles)
+CREATE TABLE IF NOT EXISTS USUARIOS (
+    ID_Usuario INTEGER PRIMARY KEY AUTOINCREMENT,
+    Usuario_Nombre VARCHAR(50) NOT NULL UNIQUE,
+    Password_Hash VARCHAR(255) NOT NULL,
+    Rol VARCHAR(10) NOT NULL,
+    Chofer_DNI VARCHAR(20) UNIQUE,
+    Activo BOOLEAN NOT NULL DEFAULT 1,
+    CHECK (Rol IN ('ADMIN', 'CHOFER')),
+    CHECK (
+        (Rol = 'ADMIN' AND Chofer_DNI IS NULL) OR
+        (Rol = 'CHOFER' AND Chofer_DNI IS NOT NULL)
+    ),
+    FOREIGN KEY (Chofer_DNI) REFERENCES CHOFERES(Chofer_DNI) ON DELETE CASCADE
+);
