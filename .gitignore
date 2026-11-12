@@ -17,9 +17,15 @@ env/
 # Entorno y editores
 .env
 .env.*
+!frontend/.env.example
 .idea/
 .vscode/
 
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Documentación generada
+docs/build/node_modules/
+docs/build/preview/
+docs/bitacora.html

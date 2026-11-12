@@ -1,0 +1,13 @@
+{
+  "name": "tfi-docs-build",
+  "private": true,
+  "type": "module",
+  "description": "Genera el PDF de la bitácora a partir de docs/bitacora.md",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "pagedjs": "^0.4.3",
+    "puppeteer-core": "^24.0.0"
+  }
+}
