@@ -11,6 +11,7 @@ function renderAt(path: string, user: Usuario | null) {
       <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/login" element={<p>login</p>} />
+          <Route path="/chofer" element={<p>dashboard chofer</p>} />
           <Route path="/mis-viajes" element={<p>mis viajes</p>} />
           <Route element={<ProtectedRoute rol="ADMIN" />}>
             <Route path="/admin" element={<p>admin</p>} />
@@ -29,9 +30,9 @@ describe("ProtectedRoute", () => {
     renderAt("/admin", null);
     expect(screen.getByText("login")).toBeInTheDocument();
   });
-  it("manda al chofer a /mis-viajes si entra a /admin", () => {
+  it("manda al chofer a su dashboard si entra a /admin", () => {
     renderAt("/admin", chofer);
-    expect(screen.getByText("mis viajes")).toBeInTheDocument();
+    expect(screen.getByText("dashboard chofer")).toBeInTheDocument();
   });
   it("deja pasar al admin", () => {
     renderAt("/admin", admin);

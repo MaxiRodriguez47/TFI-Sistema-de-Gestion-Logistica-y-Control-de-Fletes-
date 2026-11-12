@@ -8,5 +8,5 @@ export function useAuth() {
 }
 
 export function homeFor(rol: "ADMIN" | "CHOFER") {
-  return rol === "ADMIN" ? "/admin" : "/mis-viajes";
+  return rol === "ADMIN" ? "/admin" : "/chofer";
 }

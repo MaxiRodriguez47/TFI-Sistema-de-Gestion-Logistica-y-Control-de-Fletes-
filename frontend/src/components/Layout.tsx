@@ -15,6 +15,7 @@ const adminLinks = [
 ] as const;
 
 const choferLinks = [
+  ["/chofer", "Dashboard"],
   ["/mis-viajes", "Mis viajes"],
   ["/mis-viajes/nuevo", "Nuevo viaje"],
   ["/perfil", "Mi perfil"],
